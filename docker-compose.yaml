@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  reverse-proxy:
+    image: traefik:v3.1
+    command:
+      --api.insecure=true
+      --providers.docker
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  myapp:
+    build: ./
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.myapp.rule=Host(`example.com`)"
+      - "traefik.http.routers.myapp.middlewares=test-auth"
+      - "traefik.http.middlewares.test-auth.basicauth.users=test:{SHA}66CC/0VRfAa9Nlwv3h/HfNp6j28=,test2:$$apr1$$d9hr9HBB$$4HxwgUir3HP4EsggP/QNo0"
